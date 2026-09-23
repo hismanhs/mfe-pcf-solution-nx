@@ -1,0 +1,29 @@
+[build]
+  publish = "dist"
+  command = "npm run build"
+
+# CORS is not optional here: the PCF host (running on a completely different
+# origin -- localhost during dev, *.powerapps.com/*.dynamics.com in
+# production) fetches manifest.json with `fetch()` and loads remoteEntry.js
+# with a <script> tag. Without Access-Control-Allow-Origin, the manifest
+# fetch fails outright (browsers block it), which is exactly the bug this
+# project's README documents hitting with a plain `python -m http.server`
+# during local testing.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, OPTIONS"
+
+# Long-cache hashed chunk files (their filename changes on every build, so
+# this is always safe); short-cache the two files whose content can change
+# without their filename changing.
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Cache-Control = "public, max-age=60"
+
+[[headers]]
+  for = "/remoteEntry.js"
+  [headers.values]
+    Cache-Control = "public, max-age=60"

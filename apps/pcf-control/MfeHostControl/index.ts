@@ -8,6 +8,13 @@ import { initTelemetry, reportEvent } from "./services/telemetry";
 export class MfeHostControl implements ComponentFramework.ReactControl<IInputs, IOutputs> {
   private notifyOutputChanged!: () => void;
 
+  private static normalizeRemoteName(rawValue: string | null | undefined, fallback: string): string {
+    const candidate = rawValue?.trim();
+    if (!candidate) return fallback;
+    if (candidate === "sample_mfe" || candidate === "sample_mfe2") return fallback;
+    return candidate;
+  }
+
   /**
    * Single source of truth for the shared value, for the lifetime of this
    * control instance. React state in App.tsx (via useRxValue) subscribes to
@@ -96,12 +103,12 @@ export class MfeHostControl implements ComponentFramework.ReactControl<IInputs, 
     return React.createElement(App, {
       mfe1: {
         mfeUrl: context.parameters.mfeUrl.raw ?? "",
-        remoteName: context.parameters.remoteName.raw ?? "swift_transformation_mfe",
+        remoteName: MfeHostControl.normalizeRemoteName(context.parameters.remoteName.raw, "swift_transformation_mfe"),
         exposedModule: context.parameters.exposedModule.raw ?? "./Widget",
       },
       mfe2: {
         mfeUrl: context.parameters.mfeUrl2.raw ?? "",
-        remoteName: context.parameters.remoteName2.raw ?? "swift_compliance_mfe",
+        remoteName: MfeHostControl.normalizeRemoteName(context.parameters.remoteName2.raw, "swift_compliance_mfe"),
         exposedModule: context.parameters.exposedModule2.raw ?? "./Widget",
       },
       allowVersionMismatch: context.parameters.allowVersionMismatch.raw === true,

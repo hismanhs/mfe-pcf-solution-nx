@@ -1,0 +1,19 @@
+[build]
+  base = "apps/mfe-transformation"
+  publish = "apps/mfe-transformation/dist"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, OPTIONS"
+
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Cache-Control = "public, max-age=60"
+
+[[headers]]
+  for = "/remoteEntry.js"
+  [headers.values]
+    Cache-Control = "public, max-age=60"

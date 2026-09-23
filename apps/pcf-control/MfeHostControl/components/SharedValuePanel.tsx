@@ -30,18 +30,16 @@ export const SharedValuePanel: React.FC<Props> = ({ value, onChange }) => {
       style={{ border: "1px solid #d1d1d1", borderRadius: 4, marginBottom: 8 }}
     >
       <Text variant="smallPlus" block style={{ fontWeight: 600 }}>
-        Message Reference (shared across modules)
+        Auth token (shared across modules)
       </Text>
       <Text variant="tiny" block style={{ color: "#605e5c" }}>
-        The same field 20 / MsgId reference used by both Message
-        Transformation and Compliance Validation below -- editable here or
-        in either module, in sync immediately, even while the other module's
-        tab is hidden.
+        This is the single value shared between MFE 1 and MFE 2. MFE 1 writes
+        the token after login, and MFE 2 reads it only after authentication.
       </Text>
       <TextField
         value={value}
         onChange={(_, newValue) => onChange(newValue ?? "")}
-        placeholder="REF-DEMO-0001"
+        placeholder="demo.jwt.eyJ..."
       />
     </Stack>
   );

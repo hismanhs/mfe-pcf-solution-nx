@@ -1,0 +1,11 @@
+runtime: nodejs20
+
+env:
+  NODE_ENV: production
+  JWT_SECRET: ${JWT_SECRET}
+
+build:
+  cmd: cd apps/api && npm install
+
+run:
+  cmd: cd apps/api && npm start

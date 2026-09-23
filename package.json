@@ -9,6 +9,7 @@
     "build:mfes": "nx run-many -t build -p mfe-transformation mfe-compliance",
     "start:mfes": "nx run-many -t start -p mfe-transformation mfe-compliance --parallel=2",
     "start:control": "nx run pcf-control:start",
+    "start:api": "PORT=3000 node apps/api/server.js",
     "lint": "nx run-many -t lint",
     "graph": "nx graph"
   },

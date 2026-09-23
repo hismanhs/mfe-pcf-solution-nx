@@ -35,18 +35,19 @@ module.exports = (env, argv) => {
         filename: "remoteEntry.js",
         exposes: {
           "./Widget": "./src/App.tsx",
+          './Hisman': "./src/hisman.tsx",
         },
         shared: {
           react: {
             singleton: true,
             // Force the required version to React 16 to match the host runtime.
-            requiredVersion: "^16.14.0",
+            requiredVersion: "16.14.0",
             strictVersion: false,
             eager: false,
           },
           "react-dom": {
             singleton: true,
-            requiredVersion: "^16.14.0",
+            requiredVersion: "16.14.0",
             strictVersion: false,
             eager: false,
           },

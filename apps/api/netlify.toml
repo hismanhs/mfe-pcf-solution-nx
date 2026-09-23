@@ -1,0 +1,8 @@
+[build]
+  command = "cd apps/api && npm install"
+  publish = "apps/api"
+
+[[redirects]]
+  from = "/*"
+  to = "/server.js"
+  status = 200

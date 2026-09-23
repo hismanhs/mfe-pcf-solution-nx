@@ -9,31 +9,33 @@ export interface WidgetProps {
   [key: string]: unknown;
 }
 
-interface CheckResult {
-  label: string;
-  detail: string;
-  pass: boolean;
+async function protectedApiCall(token: string): Promise<{ status: string; message: string }> {
+  const response = await fetch("http://localhost:3000/api/me", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(result.message || "The protected API failed.");
+  }
+
+  return {
+    status: "ok",
+    message: `Protected API accepted token for ${result.user?.name || result.user?.email || "authenticated client"}.`,
+  };
 }
 
-function runChecks(ref: string): CheckResult[] {
-  return [
-    { label: "Message reference present", detail: `field 20 / MsgId = "${ref}"`, pass: ref.trim().length > 0 },
-    { label: "BIC directory lookup", detail: "BANKGB2LAXXX resolves to a known institution", pass: true },
-    { label: "Field 32A amount format", detail: "YYMMDD + 3-letter currency + amount, comma decimal", pass: true },
-    { label: "CBPR+ usage guideline (MX)", detail: "Mandatory elements present for pacs.008 / pacs.009", pass: true },
-    { label: "Character set validation", detail: "SWIFT X character set, no disallowed characters", pass: ref.length <= 35 },
-  ];
-}
-
-const box: React.CSSProperties = {
+const cardStyle: React.CSSProperties = {
   border: "1px solid #d1d1d1",
-  borderRadius: 4,
-  padding: "8px 10px",
-  marginBottom: 6,
-  display: "flex",
-  alignItems: "flex-start",
-  gap: 8,
-  fontSize: 13,
+  borderRadius: 8,
+  padding: 20,
+  fontFamily: "Segoe UI, sans-serif",
+  borderLeft: "4px solid #d83b01",
+  background: "#ffffff",
+  maxWidth: 560,
 };
 
 /**
@@ -48,85 +50,109 @@ const box: React.CSSProperties = {
  * module knowing about the other's internals.
  */
 const App: React.FC<WidgetProps> = ({
-  title = "Compliance Validation",
+  title = "MFE 2 — Protected API",
   sharedValue = "",
   onSharedValueChange,
 }) => {
-  const [ranAt, setRanAt] = React.useState<string | null>(null);
-  const ref = sharedValue || "REF-DEMO-0001";
-  const checks = runChecks(ref);
-  const allPass = checks.every((c) => c.pass);
+  const [loading, setLoading] = React.useState(false);
+  const [apiResponse, setApiResponse] = React.useState<string | null>(null);
+  const [error, setError] = React.useState("");
+
+  const hasToken = Boolean(sharedValue && sharedValue.trim().length > 0);
+
+  const handleSecureCall = async () => {
+    if (!hasToken) {
+      setError("Not yet logged in. Sign in from MFE 1 first.");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const result = await protectedApiCall(sharedValue);
+      setApiResponse(result.message);
+    } catch (callError) {
+      setError(callError instanceof Error ? callError.message : "The protected API failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div
-      style={{
-        border: "1px solid #d1d1d1",
-        borderRadius: 6,
-        padding: 16,
-        fontFamily: "Segoe UI, sans-serif",
-        borderLeft: "4px solid #d83b01",
-      }}
-    >
-      <h3 style={{ margin: "0 0 4px" }}>{title}</h3>
-      <p style={{ margin: "0 0 12px", fontSize: 12, color: "#a19f9d" }}>
-        Illustrative demo -- mocked checks, not a certified rules engine. Rendered
-        by <code>mfe-compliance</code>, host React {React.version}.
+    <div style={cardStyle}>
+      <h3 style={{ margin: "0 0 8px" }}>{title}</h3>
+      <p style={{ margin: "0 0 16px", fontSize: 12, color: "#605e5c" }}>
+        MFE 2 waits for the auth token. Once MFE 1 logs in, this module can read the token and call the protected API.
       </p>
 
-      <label style={{ display: "block", fontSize: 12, fontWeight: 600, marginBottom: 4 }}>
-        Message Reference (field 20 / MsgId -- shared across modules)
-      </label>
-      <input
-        type="text"
-        value={sharedValue}
-        onChange={(e) => onSharedValueChange?.(e.target.value)}
-        placeholder="REF-DEMO-0001"
-        style={{
-          width: "100%",
-          boxSizing: "border-box",
-          padding: "6px 8px",
-          border: "1px solid #8a8886",
-          borderRadius: 4,
-          fontSize: 14,
-          marginBottom: 12,
-        }}
-      />
-
-      <button
-        type="button"
-        onClick={() => setRanAt(new Date().toLocaleTimeString())}
-        style={{
-          background: "#d83b01",
-          color: "white",
-          border: "none",
-          borderRadius: 4,
-          padding: "6px 14px",
-          cursor: "pointer",
-          marginBottom: 12,
-        }}
-      >
-        Run Validation
-      </button>
-
-      {ranAt && (
-        <>
-          <div style={{ fontSize: 12, color: "#605e5c", marginBottom: 8 }}>
-            Last run {ranAt} against reference <strong>{ref}</strong> -- overall:{" "}
-            <strong style={{ color: allPass ? "#0b6a0b" : "#a80000" }}>
-              {allPass ? "PASS" : "ISSUES FOUND"}
-            </strong>
+      {!hasToken ? (
+        <div
+          style={{
+            padding: 16,
+            borderRadius: 6,
+            border: "1px solid #d1d1d1",
+            background: "#f3f2f1",
+            color: "#5c5c5c",
+          }}
+        >
+          <div style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>Not yet logged in</div>
+          <div style={{ fontSize: 14 }}>Please sign in from MFE 1 first. After login, this module will receive the token automatically.</div>
+        </div>
+      ) : (
+        <div>
+          <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>Token received</div>
+          <div
+            style={{
+              background: "#f8f8f8",
+              border: "1px solid #d1d1d1",
+              borderRadius: 6,
+              padding: 10,
+              marginBottom: 16,
+              wordBreak: "break-all",
+              fontFamily: "Consolas, monospace",
+              fontSize: 12,
+            }}
+          >
+            {sharedValue}
           </div>
-          {checks.map((c) => (
-            <div key={c.label} style={box}>
-              <span style={{ color: c.pass ? "#0b6a0b" : "#a80000", fontWeight: 700 }}>{c.pass ? "\u2713" : "\u2717"}</span>
-              <span>
-                <strong>{c.label}</strong>
-                <br />
-                <span style={{ color: "#605e5c" }}>{c.detail}</span>
-              </span>
+
+          <button
+            type="button"
+            onClick={handleSecureCall}
+            disabled={loading}
+            style={{
+              background: "#d83b01",
+              color: "white",
+              border: "none",
+              borderRadius: 6,
+              padding: "10px 16px",
+              cursor: loading ? "not-allowed" : "pointer",
+              fontWeight: 600,
+            }}
+          >
+            {loading ? "Calling API..." : "Call protected API"}
+          </button>
+
+          {error && (
+            <div style={{ color: "#a80000", fontSize: 12, marginTop: 12 }}>{error}</div>
+          )}
+
+          {apiResponse && (
+            <div
+              style={{
+                marginTop: 16,
+                padding: 14,
+                borderRadius: 6,
+                border: "1px solid #d1d1d1",
+                background: "#f3f2f1",
+                fontSize: 13,
+              }}
+            >
+              {apiResponse}
             </div>
-          ))}
-        </>
+          )}
+        </div>
       )}
     </div>
   );
