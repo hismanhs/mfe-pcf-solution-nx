@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<manifest>
+  <control namespace="SampleNamespace"
+            constructor="MfeHostControl"
+            version="1.0.0"
+            display-name-key="MfeHostControl"
+            description-key="Virtual PCF control that hosts a remote React micro-frontend with runtime version checking."
+            control-type="virtual"
+            preview-image="img/preview.png">
+
+    <!-- ===================== Configuration (input) properties =====================
+         All properties here are "input" (config), not "bound" (data), deliberately.
+         A bound property is meant to map to a Dataverse column/expression and has
+         NO default-value the platform is allowed to supply: the test harness (and
+         a real host with nothing bound yet) can only fall back to a generic "val"
+         placeholder for it, every single reload. mfeUrl/remoteName/exposedModule
+         are per-control-instance configuration a maker sets once in the Properties
+         pane, not per-record data, so "input" is both the architecturally correct
+         usage AND the one that actually supports a real default-value. -->
+    <property name="mfeUrl"
+              display-name-key="MFE Base URL"
+              description-key="Base URL where remoteEntry.js and manifest.json for the micro-frontend are hosted (e.g. https://cdn.contoso.com/sample-mfe/1.2.0/)."
+              of-type="SingleLine.Text"
+              usage="input"
+              required="true"
+              default-value="" />
+    <property name="remoteName"
+              display-name-key="Remote Container Name"
+              description-key="Module Federation container/scope name exposed by the remote (must match webpack.config.js 'name')."
+              of-type="SingleLine.Text"
+              usage="input"
+              required="true"
+              default-value="swift_transformation_mfe" />
+
+    <property name="exposedModule"
+              display-name-key="Exposed Module"
+              description-key="Module Federation exposed module path, e.g. ./Widget"
+              of-type="SingleLine.Text"
+              usage="input"
+              required="true"
+              default-value="./Widget" />
+
+    <property name="allowVersionMismatch"
+              display-name-key="Allow Version Mismatch"
+              description-key="If false (recommended for production), the control refuses to render an incompatible MFE and shows a diagnostic panel instead."
+              of-type="TwoOptions"
+              usage="input"
+              required="false"
+              default-value="false" />
+
+    <property name="widgetProps"
+              display-name-key="Widget Props (JSON)"
+              description-key="Optional JSON object passed through as props to the remote widget."
+              of-type="Multiple"
+              usage="input"
+              required="false" />
+
+    <!-- ===================== Second MFE ===================== -->
+    <property name="mfeUrl2"
+              display-name-key="MFE 2 Base URL"
+              description-key="Base URL where remoteEntry.js and manifest.json for the second micro-frontend are hosted."
+              of-type="SingleLine.Text"
+              usage="input"
+              required="false"
+              default-value="" />
+
+    <property name="remoteName2"
+              display-name-key="Remote 2 Container Name"
+              description-key="Module Federation container/scope name exposed by the second remote."
+              of-type="SingleLine.Text"
+              usage="input"
+              required="false"
+              default-value="swift_compliance_mfe" />
+
+    <property name="exposedModule2"
+              display-name-key="Exposed Module 2"
+              description-key="Module Federation exposed module path for the second remote, e.g. ./Widget"
+              of-type="SingleLine.Text"
+              usage="input"
+              required="false"
+              default-value="./Widget" />
+
+    <!-- ===================== Shared data (bound) =====================
+         Unlike mfeUrl/remoteName/etc above, this one IS meant to be "bound":
+         it's live data both MFEs and the host UI read and write, not static
+         per-instance config. A bound SingleLine.Text is exactly PCF's normal
+         two-way-binding mechanism: bind it to a Dataverse text column (or a
+         canvas app variable) to get real persistence, or leave it unbound to
+         use it purely as an in-session shared value between the two MFEs and
+         the host chrome. -->
+    <property name="sharedValue"
+              display-name-key="Shared Value"
+              description-key="A value that both micro-frontends and the host can read and write. Bind to a text column for two-way persistence, or leave unbound for in-session sharing only."
+              of-type="SingleLine.Text"
+              usage="bound"
+              required="false" />
+
+    <!-- ===================== Telemetry (optional) =====================
+         All three must be set for telemetry to activate; leaving any blank
+         keeps New Relic reporting a no-op (see services/telemetry.ts). Get
+         these values from your New Relic Browser app's "Copy/Paste
+         JavaScript" settings page. -->
+    <property name="newRelicAccountId"
+              display-name-key="New Relic Account ID"
+              description-key="New Relic account ID (from the Browser app's Copy/Paste JavaScript settings). Leave blank to disable telemetry."
+              of-type="SingleLine.Text"
+              usage="input"
+              required="false"
+              default-value="" />
+
+    <property name="newRelicLicenseKey"
+              display-name-key="New Relic License Key"
+              description-key="New Relic browser license key. Leave blank to disable telemetry."
+              of-type="SingleLine.Text"
+              usage="input"
+              required="false"
+              default-value="" />
+
+    <property name="newRelicApplicationId"
+              display-name-key="New Relic Application ID"
+              description-key="New Relic browser application ID. Leave blank to disable telemetry."
+              of-type="SingleLine.Text"
+              usage="input"
+              required="false"
+              default-value="" />
+
+    <!-- ===================== Resources ===================== -->
+    <resources>
+      <code path="index.ts" order="1" />
+      <css path="css/MfeHostControl.css" order="1" />
+      <!-- Platform-provided libraries: NOT bundled, loaded once by the host app.
+           Keep these in sync with services/versionCheck.ts SUPPORTED_PLATFORM_LIBS
+           and with the versions listed at:
+           https://learn.microsoft.com/power-apps/developer/component-framework/react-controls-platform-libraries
+
+           NOTE: Fluent is pinned to v8 (@fluentui/react), NOT v9, deliberately.
+           Recent pac/pcf-scripts versions default new "-fw react" projects to
+           Fluent v9 9.68.0, which the platform currently REJECTS at push time:
+             "platform library fluent_9_68_0 with version 9.68.0 is not supported
+              by the platform" (github.com/microsoft/powerplatform-build-tools/issues/1265)
+           Fluent v8 8.29.0 is the long-stable, actually-supported default used
+           by the standard `pac pcf init -fw react` template. -->
+      <platform-library name="React" version="16.14.0" />
+      <platform-library name="Fluent" version="8.29.0" />
+    </resources>
+
+    <feature-usage>
+      <uses-feature name="WebAPI" required="false" />
+    </feature-usage>
+
+  </control>
+</manifest>

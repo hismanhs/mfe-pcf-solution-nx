@@ -1,0 +1,12 @@
+node_modules/
+dist/
+public/manifest.json
+out/
+obj/
+bin/
+generated/ManifestTypes.d.ts
+*.log
+.DS_Store
+.nx/
+.nx/cache/
+.nx/workspace-data/

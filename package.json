@@ -1,0 +1,18 @@
+{
+  "name": "swift-modernization-mfe-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PCF virtual control hosting two SWIFT-modernization-themed React micro-frontends (Module Federation), demonstrating a composable-UI architecture: shared message reference data, independent deploys, runtime version safety. Orchestrated as an Nx monorepo.",
+  "workspaces": ["apps/mfe-transformation", "apps/mfe-compliance"],
+  "scripts": {
+    "build": "nx run-many -t build",
+    "build:mfes": "nx run-many -t build -p mfe-transformation mfe-compliance",
+    "start:mfes": "nx run-many -t start -p mfe-transformation mfe-compliance --parallel=2",
+    "start:control": "nx run pcf-control:start",
+    "lint": "nx run-many -t lint",
+    "graph": "nx graph"
+  },
+  "devDependencies": {
+    "nx": "19.8.4"
+  }
+}

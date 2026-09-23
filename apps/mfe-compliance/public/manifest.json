@@ -1,0 +1,9 @@
+{
+  "name": "swift_compliance_mfe",
+  "version": "1.0.0",
+  "reactVersion": "^16.14.0",
+  "reactDomVersion": "^16.14.0",
+  "compatibleHostVersion": "^1.0.0",
+  "remoteEntry": "remoteEntry.js",
+  "buildTime": "2026-09-23T17:18:58.201Z"
+}

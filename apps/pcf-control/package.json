@@ -1,0 +1,36 @@
+{
+  "name": "mfe-host-pcf",
+  "version": "1.0.0",
+  "description": "Virtual PCF control (React + Fluent platform libraries) that hosts a remote Module Federation micro-frontend with runtime version compatibility checks.",
+  "scripts": {
+    "build": "pcf-scripts build --buildMode production",
+    "clean": "pcf-scripts clean",
+    "rebuild": "pcf-scripts rebuild",
+    "start": "pcf-scripts start",
+    "start:watch": "pcf-scripts start watch",
+    "refreshTypes": "pcf-scripts refreshTypes",
+    "lint": "eslint MfeHostControl/**/*.{ts,tsx}",
+    "lint:fix": "eslint MfeHostControl/**/*.{ts,tsx} --fix"
+  },
+  "dependencies": {
+    "@fluentui/react": "8.29.0",
+    "@module-federation/runtime": "2.9.0",
+    "@newrelic/browser-agent": "1.322.0",
+    "react": "^16.14.0 || ^17.0.0 || ^18.0.0",
+    "react-dom": "^16.14.0 || ^17.0.0 || ^18.0.0",
+    "rxjs": "7.8.2"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.0",
+    "@types/powerapps-component-framework": "^1.3.18",
+    "@types/react": "16.14.0",
+    "@types/react-dom": "16.9.16",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "pcf-scripts": "^1",
+    "pcf-start": "^1",
+    "typescript": "^4.9.5"
+  }
+}

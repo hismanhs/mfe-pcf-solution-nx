@@ -1,0 +1,10 @@
+{
+  "extends": "pcf-scripts/tsconfig_base.json",
+  "compilerOptions": {
+    "jsx": "react",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  },
+  "include": ["MfeHostControl/**/*.ts", "MfeHostControl/**/*.tsx"]
+}

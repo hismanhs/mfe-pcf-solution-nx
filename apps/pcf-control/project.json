@@ -1,0 +1,22 @@
+{
+  "name": "pcf-control",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/pcf-control/MfeHostControl",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": { "cwd": "apps/pcf-control", "command": "npm run build" },
+      "outputs": ["{projectRoot}/out"]
+    },
+    "start": {
+      "executor": "nx:run-commands",
+      "options": { "cwd": "apps/pcf-control", "command": "npm start" }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": { "cwd": "apps/pcf-control", "command": "npm run lint" }
+    }
+  },
+  "tags": ["type:host"]
+}
